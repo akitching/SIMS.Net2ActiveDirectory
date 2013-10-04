@@ -1,0 +1,2 @@
+@echo off
+"C:\Program Files (x86)\Puppet Labs\Puppet\sys\ruby\bin\ruby.exe" C:\User_Provision\ad-provision.rb -u USERNAME -p PASSWORD -r REPORT_NAME
