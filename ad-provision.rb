@@ -208,7 +208,7 @@ doc.elements.each( 'SuperStarReport/Record' ) { |record|
   end
   group_list << "CN=Students,OU=VLE,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
   group_list << "CN=MoodleUser,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
-  if !record.elements['Parental_x0020_Consent'].nil? and !record.elements['Parental_x0020_Consent'].text.nil? and record.elements['Parental_x0020_Consent'].text.include? 'Internet Access'
+  if !record.elements['Parental_x0020_Consent'].nil? and !record.elements['Parental_x0020_Consent'].text.nil? and record.elements['Parental_x0020_Consent'].text.include? 'Internet Access' and !record.elements['Internet_x0020_Ban'].text.include? 'True'
     group_list << "CN=InternetAuthStudents,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
   end
 
