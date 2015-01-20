@@ -196,6 +196,11 @@ doc.elements.each( 'SuperStarReport/Record' ) { |record|
     next
   end
   year = record.elements['Year'].text.sub( /Year  /, '' )
+  if record.elements['Reg'].nil?
+    # Invalid class - Skip
+    $f.write("WARNING: Invalid Class - UserID: " + userid + "\n")
+    next
+  end
   formgroup = record.elements['Reg'].text
   group_list = Array.new
   group_list << "CN=Domain Users,CN=Users,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
