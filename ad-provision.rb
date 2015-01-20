@@ -113,7 +113,7 @@ def add_user(userid, year, givenname, familyname, groups)
     add_ou(oudn)
   end
   dn = '"CN=' + userid + ',' + oudn + '"'
-  useradd = 'dsadd user ' + dn + ' -samid "' + userid + '" -upn "' + userid + '@stowmarketmiddle.suffolk.sch.uk" -pwd "password" -fn "' + givenname + '" -ln "' + familyname + '" -mustchpwd yes -display "' + givenname + ' ' + familyname + '"'
+  useradd = 'dsadd user ' + dn + ' -samid "' + userid + '" -upn "' + userid + '@students.stowmarketmiddle.suffolk.sch.uk" -pwd "password" -fn "' + givenname + '" -ln "' + familyname + '" -mustchpwd yes -display "' + givenname + ' ' + familyname + '"'
   useradd << ' -hmdir "\\\\wildfire\\homes\\My Documents" -hmdrv U: -disabled no'
   $f.write(useradd + "\n")
   %x{#{useradd}}
