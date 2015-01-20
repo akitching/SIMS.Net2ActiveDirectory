@@ -211,6 +211,9 @@ doc.elements.each( 'SuperStarReport/Record' ) { |record|
   if !record.elements['Parental_x0020_Consent'].nil? and !record.elements['Parental_x0020_Consent'].text.nil? and record.elements['Parental_x0020_Consent'].text.include? 'Internet Access' and !record.elements['Internet_x0020_Ban'].text.include? 'True'
     group_list << "CN=InternetAuthStudents,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
   end
+  if record.elements['Pupil_x0020_Librarian'].text.include? 'True'
+      group_list << "CN=Pupil_Librarians,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
+  end
 
   dn = %x{dsquery user -samid #{userid}}.chomp
   if dn == '' #{
