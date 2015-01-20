@@ -9,6 +9,8 @@ options = {}
 
 options[:file] = false
 options[:command] = 'C:\Program Files\SIMS\SIMS .net\CommandReporter.exe'
+options[:dryrun] = false
+options[:debug] = false
 optparse = OptionParser.new { |opts|
 
   opts.on( '-h', '--help', 'Usage information' ) do
@@ -31,6 +33,12 @@ optparse = OptionParser.new { |opts|
   opts.on( '-c', '--command COMMAND_PATH', 'SIMS CommandReporter binary' ) do |c|
     options[:command] = c
   end
+  opts.on( '-n', '--dry-run', 'Dry run. Report what would be done but make no changes' ) do |n|
+    options[:dryrun] = n
+  end
+  opts.on( '-d', '--debug', 'Increase output.' ) do |d|
+    options[:debug] = d
+  end
 }
 
 begin
@@ -49,6 +57,9 @@ rescue OptionParser::InvalidOption, OptionParser::MissingArgument #
   puts optparse                                                   #
   exit                                                            #
 end
+
+$dryrun = options[:dryrun]
+$debug = options[:debug]
 
 $f = File.open('c:\User_Provision\ad-provision.log', 'w')
 
@@ -82,7 +93,9 @@ def add_ou(dn)
     ouadd = 'dsadd ou "' + dn + '"'
   end
   $f.write(ouadd + "\n")
-  %x{#{ouadd}}
+  if $dryrun == false
+    %x{#{ouadd}}
+  end
   if dn =~ /^\"CN=([0-9]{2}).*\"$/ #{
     year = dn.sub(/^\"CN=([0-9]{2}).*\"$/, '\1')
     group_list = Array.new
@@ -103,7 +116,9 @@ def del_ou(dn)
     oudel = 'dsrm "' + dn + '"' + ' -noprompt'
   end
   $f.write(oudel + "\n")
-  %x{#{oudel}}
+  if $dryrun == false
+    %x{#{oudel}}
+  end
 end
 
 def add_user(userid, year, givenname, familyname, groups)
@@ -116,10 +131,14 @@ def add_user(userid, year, givenname, familyname, groups)
   useradd = 'dsadd user ' + dn + ' -samid "' + userid + '" -upn "' + userid + '@students.stowmarketmiddle.suffolk.sch.uk" -pwd "password" -fn "' + givenname + '" -ln "' + familyname + '" -mustchpwd yes -display "' + givenname + ' ' + familyname + '"'
   useradd << ' -hmdir "\\\\wildfire\\homes\\My Documents" -hmdrv U: -disabled no'
   $f.write(useradd + "\n")
-  %x{#{useradd}}
+  if $dryrun == false
+    %x{#{useradd}}
+  end
   cmd = '"C:/Program Files/Grsync/bin/ssh.exe" -i "C:/ProgramData/ssh/id_rsa" -o UserKnownHostsFile="C:/ProgramData/ssh/known_hosts" root@wildfire \'/mnt/fs/provision_user_storage_and_profile -u "' + userid + '" -p "Faculty" -y "' + year_of_entry( year ) + '" -d "STOWMARKETM"\''
   $f.write(cmd + "\n")
-  %x{#{cmd}}
+  if $dryrun == false
+    %x{#{cmd}}
+  end
   dn
 end
 
@@ -130,7 +149,9 @@ def del_user(dn)
     cmd = 'dsrm "' + dn + '"' + ' -noprompt'
   end
   $f.write(cmd + "\n")
-  %x{#{cmd}}
+  if $dryrun == false
+    %x{#{cmd}}
+  end
   oudn = dn.sub( /^CN=[^,]*,/, '' )
   users = %x{dsquery user #{oudn}}.split("\n")
   if users.count == 0
@@ -152,7 +173,9 @@ def add_to_group(gdn, users)
     cmd << ' ' + user.chomp
   }
   $f.write(cmd + "\n")
-  %x{#{cmd}}
+  if $dryrun == false
+    %x{#{cmd}}
+  end
 end
 
 def remove_from_group(gdn, users)
@@ -161,7 +184,9 @@ def remove_from_group(gdn, users)
       cmd << ' ' + user.chomp
   }
   $f.write(cmd + "\n")
-  %x{#{cmd}}
+  if $dryrun == false
+    %x{#{cmd}}
+  end
   result = %x{dsget group #{gdn} -members}
   if result.split.count == 0
     del_group(gdn)
@@ -171,7 +196,9 @@ end
 def del_group(gdn)
   cmd = 'dsrm ' + gdn + ' -noprompt'
   $f.write(cmd + "\n")
-  %x{#{cmd}}
+  if $dryrun == false
+    %x{#{cmd}}
+  end
 end
 
 i = 0
@@ -189,10 +216,13 @@ else
 end
 doc.elements.each( 'SuperStarReport/Record' ) { |record|
   i = i + 1
+  puts i unless $debug == false
   userid = record.elements['Adno'].text.sub( /^[0]*/, '' )
+  puts "userid: " + userid unless $debug == false
   altuserid = record.elements['Legal_x0020_Surname'].text + '.' + record.elements['Forename'].text
   if record.elements['Year'].nil?
     # Invalid year - Skip
+    $f.write("WARNING: Invalid YearGroup - UserID: " + userid + "\n")
     next
   end
   year = record.elements['Year'].text.sub( /Year  /, '' )
@@ -235,6 +265,7 @@ doc.elements.each( 'SuperStarReport/Record' ) { |record|
     end
   end #}
   if dn == '' #{
+    puts 'Adding new user: ' + userid unless $debug == false
     $f.write('Adding new user: ' + userid + "\n")
     dn = add_user(userid, year.to_i, record.elements['Forename'].text, record.elements['Legal_x0020_Surname'].text, group_list)
     $f.write('== ' + dn + ' ==' + "\n")
@@ -266,13 +297,16 @@ doc.elements.each( 'SuperStarReport/Record' ) { |record|
 }
 
 $f.write('Updating groups' + "\n")
+puts "Updating groups" unless $debug == false
 adgroups.each { |gdn, group|
   cmd = nil
   $f.write('Adding groups' + "\n")
+  puts "Adding groups" unless $debug == false
   if group.has_key? 'add'
     add_to_group(gdn, group['add'])
   end
   $f.write('Removing groups' + "\n")
+  puts "Removing groups" unless $debug == false
   if group.has_key? 'rm'
     remove_from_group(gdn, group['rm'])
   end
@@ -288,6 +322,7 @@ ous.each { |ou|
 inactive_users = existing_users - active_users
 
 $f.write('Removing users' + "\n")
+puts "Removing users" unless $debug == false
 inactive_users.each { |user|
   $f.write(user)
   del_user( user )
