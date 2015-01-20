@@ -270,6 +270,29 @@ doc.elements.each( 'SuperStarReport/Record' ) { |record|
     dn = add_user(userid, year.to_i, record.elements['Forename'].text, record.elements['Legal_x0020_Surname'].text, group_list)
     $f.write('== ' + dn + ' ==' + "\n")
   end #}
+###################
+#  Awaiting testing
+###################
+#  disabled = %x{dsget user #{dn} -disabled -L}.include? 'disabled: yes'
+#  puts "dn: " + dn + ":: disabled: " + record.elements['Computer_x0020_Ban'].text unless $debug == false
+#  if !disabled and record.elements['Computer_x0020_Ban'].text.include? 'True'
+#    puts 'Disable user: ' + dn unless $debug == false
+#    cmd = "dsmod user #{dn} -disabled yes"
+#    puts cmd unless $debug == false
+#    #$f.write(cmd + "\n")
+#    if $dryrun == false
+#      %x{cmd}
+#    end
+#  elsif disabled and !record.elements['Computer_x0020_Ban'].text.include? 'True'
+#    puts 'Enable user: ' + dn unless $debug == false
+#    cmd = "dsmod user #{dn} -disabled no"
+#    puts cmd unless $debug == false
+#    $f.write(cmd + "\n")
+#    if $dryrun == false
+#      %x{cmd}
+#    end
+#  end
+###################
   active_users << dn
   groups = %x{dsget user #{dn} -memberof}
   groups = groups.gsub( '"', '' ).split( "\n" ).sort
