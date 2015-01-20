@@ -88,8 +88,8 @@ def add_ou(dn)
     group_list = Array.new
     group_list << "CN=Domain Users,CN=Users,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
     group_list << "CN=" + year + "_Students,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
-    group_list << "CN=Year_" + year_group( year) + ",OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
-    group_list << "CN=Students,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
+    group_list << "CN=Year_" + year_group( year) + ",OU=VLE,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
+    group_list << "CN=Students,OU=VLE,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
     group_list << "CN=MoodleUser,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
     group_list << "CN=InternetAuthStudents,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
     active_users << add_user(year, year_group( year ), 'Test', 'Pupil', group_list)
@@ -200,13 +200,13 @@ doc.elements.each( 'SuperStarReport/Record' ) { |record|
   group_list = Array.new
   group_list << "CN=Domain Users,CN=Users,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
   group_list << "CN=" + year_of_entry( year.to_i ) + "_Students,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
-  group_list << "CN=Year_" + year + ",OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
+  group_list << "CN=Year_" + year + ",OU=VLE,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
   group_list << "CN=" + formgroup + ",OU=FormGroups,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
   if !record.elements['House'].nil?
     house = record.elements['House'].text.sub( 'Townsend', 'Townshend' )
     group_list << "CN=" + house + ",OU=Houses,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
   end
-  group_list << "CN=Students,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
+  group_list << "CN=Students,OU=VLE,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
   group_list << "CN=MoodleUser,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
   if !record.elements['Parental_x0020_Consent'].nil? and !record.elements['Parental_x0020_Consent'].text.nil? and record.elements['Parental_x0020_Consent'].text.include? 'Internet Access'
     group_list << "CN=InternetAuthStudents,OU=User,OU=Groups,DC=stowmarketmiddle,DC=suffolk,DC=sch,DC=uk"
